@@ -10,6 +10,8 @@ app.use(cors());
 
 app.use('/public', express.static(`${process.cwd()}/public`));
 
+app.use(express.json());
+
 app.get('/', function(req, res) {
   res.sendFile(process.cwd() + '/views/index.html');
 });
@@ -19,6 +21,7 @@ app.get('/api/hello', function(req, res) {
   res.json({ greeting: 'hello API' });
 });
 
+//
 app.listen(port, function() {
   console.log(`Listening on port ${port}`);
 });
