@@ -34,7 +34,7 @@ app.post("/api/shorturl", function (req, res) {
     // if an error occurs, eg. the hostname is incorrect!
     if (error) {
       res.json({
-        error: "Invalid Hostname",
+        error: "Invalid url",
       });
     } else {
       // if no error exists
@@ -61,7 +61,7 @@ app.get("/api/shorturl/:short", function (req, res) {
      res.status(301).redirect(urls[short]);
   } else {
     res.json({
-      error: "Invalid Hostname",
+      error: "Invalid url",
     });
   }
 });
