@@ -34,6 +34,7 @@ app.post("/api/shorturl", function (req, res) {
   lookup(parseUrl.protocol ? parseUrl.host
     :parseUrl.path , (error, address, family) => {
     // if an error occurs, eg. the hostname is incorrect!
+    console.log(parseUrl.protocol)
     if (error) {
       res.json({
         error: "Invalid url",
@@ -43,6 +44,10 @@ app.post("/api/shorturl", function (req, res) {
       console.log(
         `The ip address is ${address} and the ip version is ${family}`
       );
+      if (parseUrl.protocol === null ){
+        providedUrl = "https://"+providedUrl;
+        console.log(providedUrl)
+      }
       if (!urls.includes(providedUrl)) {
         urls.push(providedUrl);
       }
