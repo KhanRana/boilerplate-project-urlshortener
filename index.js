@@ -1,9 +1,9 @@
 require("dotenv").config();
 const express = require("express");
-const dns = require("dns");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const { url } = require("inspector");
+const url  = require("url");
+const { lookup } = require("dns");
 const app = express();
 
 // Basic Configuration
@@ -29,8 +29,10 @@ const urls = [];
 // Second API endpoint
 app.post("/api/shorturl", function (req, res) {
   let providedUrl = req.body.url;
+  const parseUrl = url.parse(providedUrl)
   // lookup the hostname passed as argument
-  dns.lookup(providedUrl, (error, address, family) => {
+  lookup(parseUrl.protocol ? parseUrl.host
+    :parseUrl.path , (error, address, family) => {
     // if an error occurs, eg. the hostname is incorrect!
     if (error) {
       res.json({
@@ -41,11 +43,9 @@ app.post("/api/shorturl", function (req, res) {
       console.log(
         `The ip address is ${address} and the ip version is ${family}`
       );
-      providedUrl = "https://"+providedUrl
       if (!urls.includes(providedUrl)) {
         urls.push(providedUrl);
       }
-      console.log()
       res.json({
         original_url: providedUrl,
         short_url: urls.indexOf(providedUrl),
