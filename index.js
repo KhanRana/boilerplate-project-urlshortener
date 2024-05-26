@@ -45,7 +45,7 @@ app.post("/api/shorturl", function (req, res) {
         `The ip address is ${address} and the ip version is ${family}`
       );
       if (parseUrl.protocol === null ){
-        providedUrl = "https://"+providedUrl;
+        providedUrl = "http://"+providedUrl;
         console.log(providedUrl)
       }
       if (!urls.includes(providedUrl)) {
