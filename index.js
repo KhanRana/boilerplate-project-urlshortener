@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const url  = require("url");
+const url = require("url");
 const { lookup } = require("dns");
 const app = express();
 
@@ -32,38 +32,40 @@ app.post("/api/shorturl", function (req, res) {
   const parseUrl = url.parse(providedUrl)
   // lookup the hostname passed as argument
   lookup(parseUrl.protocol ? parseUrl.host
-    :parseUrl.path , (error, address, family) => {
-    // if an error occurs, eg. the hostname is incorrect!
-    console.log(parseUrl.protocol)
-    if (error) {
-      res.json({
-        error: "Invalid url",
-      });
-    } else {
-      // if no error exists
-      console.log(
-        `The ip address is ${address} and the ip version is ${family}`
-      );
-      if (parseUrl.protocol === null ){
-        providedUrl = "http://"+providedUrl;
-        console.log(providedUrl)
+    : parseUrl.path, (error, address, family) => {
+      // if an error occurs, eg. the hostname is incorrect!
+      console.log(parseUrl.protocol)
+      if (error) {
+        res.json({
+          error: "Invalid url",
+        });
       }
-      if (!urls.includes(providedUrl)) {
-        urls.push(providedUrl);
+      else if (parseUrl.protocol === null) {
+        res.json({
+          error: "Invalid url",
+        })
+      } else {
+        // if no error exists
+        console.log(
+          `The ip address is ${address} and the ip version is ${family}`
+        );
+
+        if (!urls.includes(providedUrl)) {
+          urls.push(providedUrl);
+        }
+        res.json({
+          original_url: providedUrl,
+          short_url: urls.indexOf(providedUrl),
+        });
       }
-      res.json({
-        original_url: providedUrl,
-        short_url: urls.indexOf(providedUrl),
-      });
-    }
-  });
+    });
 });
 
 app.get("/api/shorturl/:short", function (req, res) {
   const short = Number(req.params.short);
   console.log(short);
   if (short <= urls.length) {
-     res.status(301).redirect(urls[short]);
+    res.status(301).redirect(urls[short]);
   } else {
     res.json({
       error: "Invalid url",
