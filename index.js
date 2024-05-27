@@ -2,8 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const url = require("url");
-const { lookup } = require("dns");
+const { URL } = require("url");
+const dns = require("dns");
 const app = express();
 
 // Basic Configuration
@@ -26,46 +26,49 @@ app.get("/api/hello", function (req, res) {
 
 // create a list to store shotURL
 const urls = [];
+//check for protocols
+const isValidUrl = (urlString) => {
+  try {
+    return Boolean(new URL(urlString));
+  } catch (e) {
+    return false;
+  }
+};
 // Second API endpoint
 app.post("/api/shorturl", function (req, res) {
   let providedUrl = req.body.url;
-  const parseUrl = url.parse(providedUrl)
-  // lookup the hostname passed as argument
-  lookup(parseUrl.protocol ? parseUrl.host
-    : parseUrl.path, (error, address, family) => {
-      // if an error occurs, eg. the hostname is incorrect!
-      console.log(parseUrl.protocol)
-      if (error) {
-        res.json({
-          error: "Invalid url",
-        });
-      }
-      else if (parseUrl.protocol === null) {
-        res.json({
-          error: "Invalid url",
-        })
-      } else {
-        // if no error exists
-        console.log(
-          `The ip address is ${address} and the ip version is ${family}`
-        );
-
-        if (!urls.includes(providedUrl)) {
-          urls.push(providedUrl);
-        }
-        res.json({
-          original_url: providedUrl,
-          short_url: urls.indexOf(providedUrl),
-        });
-      }
+  console.log(providedUrl);
+  if (isValidUrl(providedUrl) === false) {
+    res.json({
+      error: "Invalid url",
     });
+  }
+  // lookup the hostname passed as argument
+  // dns.lookup(providedUrl, (error, address, family) => {
+  //   // if an error occurs, eg. the hostname is incorrect!
+  //   if (error) {
+  //     res.json({
+  //       error: "Invalid url",
+  //     });
+  //   }
+  else {
+    // if no error exists
+    // console.log(`The ip address is ${address} and the ip version is ${family}`);
+
+    if (!urls.includes(providedUrl)) {
+      urls.push(providedUrl);
+    }
+    res.json({
+      original_url: providedUrl,
+      short_url: urls.indexOf(providedUrl),
+    });
+  }
 });
 
 app.get("/api/shorturl/:short", function (req, res) {
   const short = Number(req.params.short);
-  console.log(short);
   if (short <= urls.length) {
-    res.status(301).redirect(urls[short]);
+    res.status(308).redirect(urls[short]);
   } else {
     res.json({
       error: "Invalid url",
